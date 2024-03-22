@@ -13,7 +13,6 @@ public class BlueprintItemTags {
 	public static final TagKey<Item> OCELOT_FOOD = itemTag("ocelot_food");
 	public static final TagKey<Item> CAT_FOOD = itemTag("cat_food");
 
-	public static final TagKey<Item> EGGS = TagUtil.itemTag("forge", "eggs");
 	public static final TagKey<Item> MILK = TagUtil.itemTag("forge", "milk");
 	public static final TagKey<Item> PUMPKINS = TagUtil.itemTag("forge", "pumpkins");
 
@@ -33,13 +32,6 @@ public class BlueprintItemTags {
 
 	public static final TagKey<Item> FURNACE_BOATS = TagUtil.itemTag("boatload", "furnace_boats");
 	public static final TagKey<Item> LARGE_BOATS = TagUtil.itemTag("boatload", "large_boats");
-
-	public static final TagKey<Item> BOATABLE_CHESTS = TagUtil.itemTag("quark", "boatable_chests");
-	public static final TagKey<Item> REVERTABLE_CHESTS = TagUtil.itemTag("quark", "revertable_chests");
-	public static final TagKey<Item> LADDERS = TagUtil.itemTag("quark", "ladders");
-	public static final TagKey<Item> HEDGES = TagUtil.itemTag("quark", "hedges");
-	public static final TagKey<Item> VERTICAL_SLABS = TagUtil.itemTag("quark", "vertical_slabs");
-	public static final TagKey<Item> WOODEN_VERTICAL_SLABS = TagUtil.itemTag("quark", "wooden_vertical_slabs");
 
 	private static TagKey<Item> itemTag(String name) {
 		return TagUtil.itemTag(Blueprint.MOD_ID, name);

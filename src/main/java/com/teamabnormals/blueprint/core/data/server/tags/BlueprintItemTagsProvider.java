@@ -27,7 +27,6 @@ public class BlueprintItemTagsProvider extends ItemTagsProvider {
 		this.tag(BlueprintItemTags.OCELOT_FOOD);
 		this.tag(BlueprintItemTags.CAT_FOOD);
 
-		this.tag(BlueprintItemTags.EGGS).add(Items.EGG);
 		this.tag(BlueprintItemTags.MILK).addTag(BlueprintItemTags.BUCKETS_MILK);
 		this.tag(BlueprintItemTags.PUMPKINS).add(Items.PUMPKIN);
 
@@ -47,13 +46,5 @@ public class BlueprintItemTagsProvider extends ItemTagsProvider {
 
 		this.tag(BlueprintItemTags.FURNACE_BOATS);
 		this.tag(BlueprintItemTags.LARGE_BOATS);
-
-		this.tag(BlueprintItemTags.BOATABLE_CHESTS);
-		this.tag(BlueprintItemTags.REVERTABLE_CHESTS);
-		this.copy(BlueprintBlockTags.HEDGES, BlueprintItemTags.HEDGES);
-		this.copy(BlueprintBlockTags.LADDERS, BlueprintItemTags.LADDERS);
-		this.copy(BlueprintBlockTags.VERTICAL_SLABS, BlueprintItemTags.VERTICAL_SLABS);
-		this.copy(BlueprintBlockTags.WOODEN_VERTICAL_SLABS, BlueprintItemTags.WOODEN_VERTICAL_SLABS);
 	}
-
 }

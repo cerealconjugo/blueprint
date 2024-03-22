@@ -521,6 +521,193 @@ public final class DataUtil {
 	}
 
 	/**
+	 * {@link List} implementation that maps read values from a wrapped list.
+	 * <p>Useful for remapping the readable elements of a list lazily.</p>
+	 *
+	 * @param <E> The type of elements in the list.
+	 * @author SmellyModder (Luke Tonon)
+	 */
+	public record ReadMappedList<E>(List<E> list, Function<E, E> mapper) implements List<E> {
+		@Override
+		public int size() {
+			return this.list.size();
+		}
+
+		@Override
+		public boolean isEmpty() {
+			return this.list.isEmpty();
+		}
+
+		@Override
+		public boolean contains(Object o) {
+			return this.list.contains(o);
+		}
+
+		@Override
+		public Iterator<E> iterator() {
+			return this.listIterator();
+		}
+
+		@Override
+		@SuppressWarnings("unchecked")
+		public Object[] toArray() {
+			Object[] objects = this.list.toArray();
+			for (int i = 0; i < objects.length; i++) {
+				objects[i] = this.mapper.apply((E) objects[i]);
+			}
+			return objects;
+		}
+
+		@Override
+		@SuppressWarnings("unchecked")
+		public <T> T[] toArray(T[] a) {
+			T[] objects = this.list.toArray(a);
+			for (int i = 0; i < objects.length; i++) {
+				objects[i] = (T) this.mapper.apply((E) objects[i]);
+			}
+			return objects;
+		}
+
+		@Override
+		public boolean add(E t) {
+			return this.list.add(t);
+		}
+
+		@Override
+		public boolean remove(Object o) {
+			return this.list.remove(o);
+		}
+
+		@Override
+		public boolean containsAll(Collection<?> c) {
+			return this.list.containsAll(c);
+		}
+
+		@Override
+		public boolean addAll(Collection<? extends E> c) {
+			return this.list.addAll(c);
+		}
+
+		@Override
+		public boolean addAll(int index, Collection<? extends E> c) {
+			return this.list.addAll(index, c);
+		}
+
+		@Override
+		public boolean removeAll(Collection<?> c) {
+			return this.list.removeAll(c);
+		}
+
+		@Override
+		public boolean retainAll(Collection<?> c) {
+			return this.list.retainAll(c);
+		}
+
+		@Override
+		public void clear() {
+			this.list.clear();
+		}
+
+		@Override
+		public E get(int index) {
+			return this.mapper.apply(this.list.get(index));
+		}
+
+		@Override
+		public E set(int index, E element) {
+			return this.list.set(index, element);
+		}
+
+		@Override
+		public void add(int index, E element) {
+			this.list.add(index, element);
+		}
+
+		@Override
+		public E remove(int index) {
+			return this.list.remove(index);
+		}
+
+		@Override
+		public int indexOf(Object o) {
+			return this.list.indexOf(o);
+		}
+
+		@Override
+		public int lastIndexOf(Object o) {
+			return this.list.lastIndexOf(o);
+		}
+
+		@Override
+		public ListIterator<E> listIterator() {
+			return new ListItr(this.list.listIterator());
+		}
+
+		@Override
+		public ListIterator<E> listIterator(int index) {
+			return new ListItr(this.list.listIterator(index));
+		}
+
+		@Override
+		public List<E> subList(int fromIndex, int toIndex) {
+			return new ReadMappedList<>(this.subList(fromIndex, toIndex), this.mapper);
+		}
+
+		public class ListItr implements ListIterator<E> {
+			private final ListIterator<E> listIterator;
+
+			public ListItr(ListIterator<E> listIterator) {
+				this.listIterator = listIterator;
+			}
+
+			@Override
+			public boolean hasNext() {
+				return this.listIterator.hasNext();
+			}
+
+			@Override
+			public E next() {
+				return ReadMappedList.this.mapper.apply(this.listIterator.next());
+			}
+
+			@Override
+			public boolean hasPrevious() {
+				return this.listIterator.hasPrevious();
+			}
+
+			@Override
+			public E previous() {
+				return ReadMappedList.this.mapper.apply(this.listIterator.previous());
+			}
+
+			@Override
+			public int nextIndex() {
+				return this.listIterator.nextIndex();
+			}
+
+			@Override
+			public int previousIndex() {
+				return this.listIterator.previousIndex();
+			}
+
+			@Override
+			public void remove() {
+				this.listIterator.remove();
+			}
+
+			@Override
+			public void set(E e) {
+				this.listIterator.set(e);
+			}
+
+			@Override
+			public void add(E e) {
+				this.listIterator.add(e);
+			}
+		}
+	}
+
+	/**
 	 * When an instance of this class is registered using {@link DataUtil#registerAlternativeDispenseBehavior(AlternativeDispenseBehavior)},
 	 * an {@link DispenseItemBehavior} will get registered that will perform a new {@link DispenseItemBehavior} if
 	 * a condition is met and the behavior that was already in the registry if not. See constructor for details.
@@ -621,18 +808,35 @@ public final class DataUtil {
 		protected final Comparator<String> modIdComparator;
 		protected final Predicate<BlockSource> condition;
 		private final SoundEvent sound;
+		private final boolean isMobHead;
 
 		/**
 		 * Initialises a new {@link CustomNoteBlockInstrument} where {@code condition} decides whether {@code sound}
 		 * should get played instead of vanilla's when a note block is triggered.
 		 *
-		 * @param modId     The ID of the mod registering the condition.
-		 * @param condition A {@link Predicate} that takes in a {@link BlockSource} instance that represents the
-		 *                  position under the note block, returning true if {@code sound} should be played.
-		 * @param sound     The {@link SoundEvent} that will be played if {@code condition} is met.
+		 * @param modId           The ID of the mod registering the condition.
+		 * @param condition       A {@link Predicate} that takes in a {@link BlockSource} instance that represents the
+		 *                        position under the note block, or above the note block if {@code isMobHead} is true,
+		 *                        returning true if {@code sound} should be played.
+		 * @param sound           The {@link SoundEvent} that will be played if {@code condition} is met.
+		 * @param isMobHead       If the instrument is for a mob head, meaning that the {@code sound} is unaffected by the tune of the note block
+		 *                        and functions only above the note block
+		 */
+		public CustomNoteBlockInstrument(String modId, Predicate<BlockSource> condition, SoundEvent sound, boolean isMobHead) {
+			this(modId, condition, sound, isMobHead, (id1, id2) -> 0);
+		}
+
+		/**
+		 * Initialises a new {@link CustomNoteBlockInstrument} where {@code condition} decides whether {@code sound}
+		 * should get played instead of vanilla's when a note block is triggered.
+		 *
+		 * @param modId           The ID of the mod registering the condition.
+		 * @param condition       A {@link Predicate} that takes in a {@link BlockSource} instance that represents the
+		 *                        position under the note block, returning true if {@code sound} should be played.
+		 * @param sound           The {@link SoundEvent} that will be played if {@code condition} is met.
 		 */
 		public CustomNoteBlockInstrument(String modId, Predicate<BlockSource> condition, SoundEvent sound) {
-			this(modId, condition, sound, (id1, id2) -> 0);
+			this(modId, condition, sound, false, (id1, id2) -> 0);
 		}
 
 		/**
@@ -653,17 +857,21 @@ public final class DataUtil {
 		 *
 		 * @param modId           The ID of the mod registering the condition.
 		 * @param condition       A {@link Predicate} that takes in a {@link BlockSource} instance that represents the
-		 *                        position under the note block, returning true if {@code sound} should be played.
+		 *                        position under the note block, or above the note block if {@code isMobHead} is true,
+		 *                        returning true if {@code sound} should be played.
 		 * @param sound           The {@link SoundEvent} that will be played if {@code condition} is met.
+		 * @param isMobHead       If the instrument is for a mob head, meaning that the {@code sound} is unaffected by the tune of the note block
+		 *                        and functions only above the note block
 		 * @param modIdComparator A {@link Comparator} that compares two strings. The first is {@code modId}, and the
 		 *                        second is the mod id for another note block instrument.
 		 *                        It should return 1 if {@code condition} should be tested after the other instrument's,
 		 *                        -1 if it should go before, and 0 in any other case.
 		 */
-		public CustomNoteBlockInstrument(String modId, Predicate<BlockSource> condition, SoundEvent sound, Comparator<String> modIdComparator) {
+		public CustomNoteBlockInstrument(String modId, Predicate<BlockSource> condition, SoundEvent sound, boolean isMobHead, Comparator<String> modIdComparator) {
 			this.modId = modId;
 			this.condition = condition;
 			this.sound = sound;
+			this.isMobHead = isMobHead;
 			this.modIdComparator = modIdComparator;
 		}
 
@@ -678,6 +886,10 @@ public final class DataUtil {
 
 		public SoundEvent getSound() {
 			return this.sound;
+		}
+
+		public boolean isMobHead() {
+			return this.isMobHead;
 		}
 	}
 }

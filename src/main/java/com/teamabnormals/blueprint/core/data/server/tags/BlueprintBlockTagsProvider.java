@@ -16,11 +16,7 @@ public class BlueprintBlockTagsProvider extends BlockTagsProvider {
 
 	@Override
 	protected void addTags(HolderLookup.Provider provider) {
+		this.tag(BlueprintBlockTags.NOTE_BLOCK_TOP_INSTRUMENTS);
 		this.tag(BlueprintBlockTags.LEAF_PILES);
-		this.tag(BlueprintBlockTags.HEDGES);
-		this.tag(BlueprintBlockTags.LADDERS);
-		this.tag(BlueprintBlockTags.VERTICAL_SLABS).addTag(BlueprintBlockTags.WOODEN_VERTICAL_SLABS);
-		this.tag(BlueprintBlockTags.WOODEN_VERTICAL_SLABS);
 	}
-
 }

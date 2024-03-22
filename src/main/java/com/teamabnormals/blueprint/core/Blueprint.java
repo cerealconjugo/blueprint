@@ -4,6 +4,7 @@ import com.teamabnormals.blueprint.client.BlueprintShaders;
 import com.teamabnormals.blueprint.client.RewardHandler;
 import com.teamabnormals.blueprint.client.renderer.BlueprintBoatRenderer;
 import com.teamabnormals.blueprint.client.renderer.block.BlueprintChestBlockEntityRenderer;
+import com.teamabnormals.blueprint.client.renderer.texture.atlas.BlueprintSpriteSources;
 import com.teamabnormals.blueprint.client.screen.splash.BlueprintSplashManager;
 import com.teamabnormals.blueprint.common.capability.chunkloading.ChunkLoaderCapability;
 import com.teamabnormals.blueprint.common.capability.chunkloading.ChunkLoaderEvents;
@@ -18,7 +19,6 @@ import com.teamabnormals.blueprint.common.world.storage.tracking.TrackedData;
 import com.teamabnormals.blueprint.common.world.storage.tracking.TrackedDataManager;
 import com.teamabnormals.blueprint.core.api.WoodTypeRegistryHelper;
 import com.teamabnormals.blueprint.core.api.conditions.BlueprintAndCondition;
-import com.teamabnormals.blueprint.core.api.conditions.QuarkFlagRecipeCondition.Serializer;
 import com.teamabnormals.blueprint.core.api.conditions.config.*;
 import com.teamabnormals.blueprint.core.api.model.FullbrightModel;
 import com.teamabnormals.blueprint.core.data.server.BlueprintDatapackBuiltinEntriesProvider;
@@ -111,7 +111,6 @@ public final class Blueprint {
 
 		this.registerMessages();
 
-		CraftingHelper.register(new Serializer());
 		CraftingHelper.register(new BlueprintAndCondition.Serializer());
 		DataUtil.registerConfigPredicate(new EqualsPredicate.Serializer());
 		DataUtil.registerConfigPredicate(new GreaterThanOrEqualPredicate.Serializer());
@@ -155,6 +154,8 @@ public final class Blueprint {
 			bus.addListener(RewardHandler::clientSetup);
 			bus.addListener(RewardHandler::addLayers);
 			bus.addListener(BlueprintShaders::registerShaders);
+
+			BlueprintSpriteSources.register();
 		});
 
 		bus.addListener(BlueprintDataPackRegistries::registerRegistries);
